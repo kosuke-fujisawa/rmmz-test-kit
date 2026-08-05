@@ -1,39 +1,52 @@
-# rmmz-e2e-kit
+# rmmz-test-kit
 
-[![Test](https://github.com/kosuke-fujisawa/rmmz-e2e-kit/actions/workflows/test.yml/badge.svg)](https://github.com/kosuke-fujisawa/rmmz-e2e-kit/actions/workflows/test.yml)
+[![Test](https://github.com/kosuke-fujisawa/rmmz-test-kit/actions/workflows/test.yml/badge.svg)](https://github.com/kosuke-fujisawa/rmmz-test-kit/actions/workflows/test.yml)
 
-RPG ツクール MZ(RMMZ)プロジェクト向けの NW.js 黒箱 E2E(ブラックボックスE2E)キットです。ゲーム内容(シナリオ・戦闘仕様)には依存しません。もともとは [negaboku](https://github.com/kosuke-fujisawa/negaboku)(`tools/mz-e2e/`)と [chiriyuku-monotachi](https://github.com/kosuke-fujisawa/chiriyuku-monotachi)(`tools/mz/e2e/`)の共通基盤として切り出したものですが、RPG ツクール MZ プロジェクト全般で利用できます。
+RPG ツクール MZ(RMMZ)プロジェクト向けのテスト基盤です。ゲーム内容(シナリオ・戦闘仕様)には依存しません。もともとは [negaboku](https://github.com/kosuke-fujisawa/negaboku)(`tools/mz-e2e/`)と [chiriyuku-monotachi](https://github.com/kosuke-fujisawa/chiriyuku-monotachi)(`tools/mz/e2e/`)の共通基盤として切り出したものですが、RPG ツクール MZ プロジェクト全般で利用できます。設計は姉妹リポジトリ [tyranoscript-test-kit](https://github.com/kosuke-fujisawa/tyranoscript-test-kit)(TyranoScript作品向け)に合わせています。
 
 ## 対応プラットフォーム
 
-`src/e2e/nwjs-driver.js`(`resolveChromedriverPath`)は現時点で **macOS のみ対応**です(RPG ツクール MZ が同梱する `nwjs-mac/chromedriver` の固定パスを前提にしています)。Windows/Linux 版 NW.js のパス解決は未実装です。`src/launch-args/parse-launch-args.js` はプラットフォーム非依存の純粋関数です。
+`./e2e`(`resolveChromedriverPath`)は現時点で **macOS のみ対応**です(RPG ツクール MZ が同梱する `nwjs-mac/chromedriver` の固定パスを前提にしています)。Windows/Linux 版 NW.js のパス解決は未実装です。`./launch-args` はプラットフォーム非依存の純粋関数です。
 
-## 含まれるもの
+## 含まれるもの・サブパス構成
 
-- `src/launch-args/parse-launch-args.js` — CLI起動引数(`test&scenario=...&seed=...&savedir=...`)の解析。純粋関数
-- `src/e2e/nwjs-driver.js` — NW.js版MZプロジェクトの黒箱E2E向けヘルパー(Selenium起動、キー入力、画面変化待ち)
+依存関係の異なる機能はサブパスで分離しています。「E2Eは要らないが起動引数パーサーだけ使いたい」ような場合に、不要な依存(`selenium-webdriver`)を持ち込まずに済みます。
+
+| サブパス | 内容 | 依存 |
+|---|---|---|
+| `rmmz-test-kit`(`.`) | 全機能をまとめて再エクスポート | `selenium-webdriver`(peer) |
+| `rmmz-test-kit/e2e` | NW.js版MZプロジェクトの黒箱E2E向けヘルパー(Selenium起動、キー入力、画面変化待ち) | `selenium-webdriver`(peer) |
+| `rmmz-test-kit/launch-args` | CLI起動引数(`test&scenario=...&seed=...&savedir=...`)の解析。純粋関数 | なし |
+
+`selenium-webdriver` は `peerDependencies` です。利用側プロジェクトが自分の `package.json` に持つバージョンを使います(`tyranoscript-test-kit` が `@playwright/test` を peerDependencies にしているのと同じ設計)。
+
+将来データ検証(validate)・意味差分(semantic-diff)等を追加する場合も、別リポジトリへ分割せず `rmmz-test-kit/validate` のようなサブパスとしてこのリポジトリへ追加する方針です(現時点では chiriyuku-monotachi の `tools/mz/validate`・`tools/mz/semantic-diff` にのみ存在し、negaboku側で重複が未発生のためスコープ外)。
 
 ## スコープ外(意図的に含めないもの)
 
-- MZ開発専用ブートストラッププラグイン本体。理由は2つ。(1) プラグインは配置ファイル名がプラグイン識別子を兼ねるため、プロジェクトごとに実ファイルを持つ必要がある。(2) このプラグインはMZ本体(NW.js)の中で全プレイヤーの起動時に毎回読み込まれるため、`require("rmmz-e2e-kit")`のような外部node_modules依存を持たせると、配布用パッケージに本キットが含まれない場合にゲームがクラッシュするリスクがある。そのため`parseLaunchArgs`相当の小さな純粋関数は、プラグイン側にそのまま複製して自己完結させる方針とする(このリポジトリがロジックの正本であり、変更する場合は両方に反映する。利用例は`negaboku/game/js/plugins/NegabokuDevBootstrap.js`を参照)
-- データ検証(validate)・意味差分(semantic-diff)等: 現時点で chiriyuku-monotachi にのみ存在し、negaboku側では重複が未発生(Rule of Three未成立)のためスコープ外。将来negaboku側でも同種の重複が発生した場合は、**このリポジトリを分割するのではなく、このリポジトリ内にサブパスとして追加する**方針とする(例: `rmmz-e2e-kit/validate`)。理由は [tyranoscript-test-kit](https://github.com/kosuke-fujisawa/tyranoscript-test-kit) の前例による。あちらもE2E(Playwright)と静的解析(`check-scenario`)を1リポジトリにまとめており、依存関係の違い(静的解析側はNode.js標準ライブラリのみ、E2E側だけ`@playwright/test`をpeerDependenciesに持つ)はリポジトリ分割ではなくサブパス分割とpeerDependenciesで解決している。当初「別リポジトリとして切り出す」と記載していたが、この前例と矛盾するため訂正した
+MZ開発専用ブートストラッププラグイン本体は含みません。理由は2つ。(1) プラグインは配置ファイル名がプラグイン識別子を兼ねるため、プロジェクトごとに実ファイルを持つ必要がある。(2) このプラグインはMZ本体(NW.js)の中で全プレイヤーの起動時に毎回読み込まれるため、`require("rmmz-test-kit")`のような外部node_modules依存を持たせると、配布用パッケージに本キットが含まれない場合にゲームがクラッシュするリスクがある。そのため`parseLaunchArgs`相当の小さな純粋関数は、プラグイン側にそのまま複製して自己完結させる方針とする(このリポジトリがロジックの正本であり、変更する場合は両方に反映する。利用例は[negaboku/game/js/plugins/NegabokuDevBootstrap.js](https://github.com/kosuke-fujisawa/negaboku/blob/main/game/js/plugins/NegabokuDevBootstrap.js)(private repo)を参照)
 
 ## 使い方
 
-各プロジェクトの`package.json`から参照する。
+各プロジェクトの`package.json`から参照する。`selenium-webdriver`はpeerDependenciesのため、利用側でも別途インストールが必要。
 
 ```json
 {
   "dependencies": {
-    "rmmz-e2e-kit": "github:kosuke-fujisawa/rmmz-e2e-kit#main"
+    "rmmz-test-kit": "github:kosuke-fujisawa/rmmz-test-kit#main"
+  },
+  "devDependencies": {
+    "selenium-webdriver": "^4.46.0"
   }
 }
 ```
 
-ローカルで並行開発する場合は相対パスの `file:` 依存も使える(`"rmmz-e2e-kit": "file:../rmmz-e2e-kit"`)。
+ローカルで並行開発する場合は相対パスの `file:` 依存も使える(`"rmmz-test-kit": "file:../rmmz-test-kit"`)。
 
 ```js
-const { parseLaunchArgs, createNwjsDriver, pressKey, pressUntilChanged, waitForFile } = require("rmmz-e2e-kit");
+const { parseLaunchArgs, createNwjsDriver, pressKey, pressUntilChanged, waitForFile } = require("rmmz-test-kit/e2e");
+// 起動引数パーサーだけでよい場合は selenium-webdriver 不要:
+// const { parseLaunchArgs } = require("rmmz-test-kit/launch-args");
 
 // MZプロジェクト(NW.js)を起動して黒箱E2Eする最小例
 const driver = await createNwjsDriver({

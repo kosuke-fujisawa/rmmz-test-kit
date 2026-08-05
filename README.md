@@ -16,7 +16,7 @@ RPG ツクール MZ(RMMZ)プロジェクト向けの NW.js 黒箱 E2E(ブラッ�
 ## スコープ外(意図的に含めないもの)
 
 - MZ開発専用ブートストラッププラグイン本体。理由は2つ。(1) プラグインは配置ファイル名がプラグイン識別子を兼ねるため、プロジェクトごとに実ファイルを持つ必要がある。(2) このプラグインはMZ本体(NW.js)の中で全プレイヤーの起動時に毎回読み込まれるため、`require("rmmz-e2e-kit")`のような外部node_modules依存を持たせると、配布用パッケージに本キットが含まれない場合にゲームがクラッシュするリスクがある。そのため`parseLaunchArgs`相当の小さな純粋関数は、プラグイン側にそのまま複製して自己完結させる方針とする(このリポジトリがロジックの正本であり、変更する場合は両方に反映する。利用例は`negaboku/game/js/plugins/NegabokuDevBootstrap.js`を参照)
-- データ検証(validate)・意味差分(semantic-diff)等: `data/*.json` を静的に読むだけで、ブラウザもMZインストールも不要な別種のツール。依存関係(selenium-webdriver)と実行環境(ライセンス済みMZインストールが要る/不要)が異なるため、本キットには含めず、必要になった時点で別リポジトリとして切り出す方針とする
+- データ検証(validate)・意味差分(semantic-diff)等: 現時点で chiriyuku-monotachi にのみ存在し、negaboku側では重複が未発生(Rule of Three未成立)のためスコープ外。将来negaboku側でも同種の重複が発生した場合は、**このリポジトリを分割するのではなく、このリポジトリ内にサブパスとして追加する**方針とする(例: `rmmz-e2e-kit/validate`)。理由は [tyranoscript-test-kit](https://github.com/kosuke-fujisawa/tyranoscript-test-kit) の前例による。あちらもE2E(Playwright)と静的解析(`check-scenario`)を1リポジトリにまとめており、依存関係の違い(静的解析側はNode.js標準ライブラリのみ、E2E側だけ`@playwright/test`をpeerDependenciesに持つ)はリポジトリ分割ではなくサブパス分割とpeerDependenciesで解決している。当初「別リポジトリとして切り出す」と記載していたが、この前例と矛盾するため訂正した
 
 ## 使い方
 

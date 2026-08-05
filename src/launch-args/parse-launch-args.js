@@ -30,8 +30,7 @@ function parseLaunchArgs(raw) {
     if (key === "scenario") {
       result.scenario = value || null;
     } else if (key === "seed") {
-      const parsed = Number.parseInt(value, 10);
-      result.seed = Number.isFinite(parsed) ? parsed : null;
+      result.seed = /^-?\d+$/.test(value) ? Number.parseInt(value, 10) : null;
     } else if (key === "savedir") {
       result.savedir = value || null;
     }

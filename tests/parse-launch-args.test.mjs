@@ -22,6 +22,12 @@ test("seedが数値変換できない場合はnullになる", () => {
   assert.equal(parseLaunchArgs("seed=abc").seed, null);
 });
 
+test("seedが整数文字列全体でない場合はnullになる(部分パースで別の値に化けさせない)", () => {
+  assert.equal(parseLaunchArgs("seed=12abc").seed, null);
+  assert.equal(parseLaunchArgs("seed=1.5").seed, null);
+  assert.equal(parseLaunchArgs("seed=0x10").seed, null);
+});
+
 test("findLaunchArgTokenはnw.App.argv配列から起動引数を含む要素を探す", () => {
   const argv = [
     "--disable-popup-blocking",

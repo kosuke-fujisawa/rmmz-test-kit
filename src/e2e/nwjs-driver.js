@@ -122,6 +122,9 @@ async function waitForScreenStable(driver, { maxWaitMs = 6000, intervalMs = 250 
  */
 async function pressUntilChanged(driver, key, { wait = 800, retries = 4 } = {}) {
   const before = await screenshotHash(driver);
+  if (!before) {
+    return false;
+  }
   for (let attempt = 1; attempt <= retries; attempt++) {
     await pressKey(driver, key, { wait });
     const after = await screenshotHash(driver);

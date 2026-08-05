@@ -27,7 +27,7 @@ RPG ツクール MZ(RMMZ)プロジェクト向けのテスト基盤です。ゲ�
 
 ## 含まれるもの・サブパス構成
 
-依存関係の異なる機能はサブパスで分離しています。「E2Eは要らないが起動引数パーサーだけ使いたい」ような場合に、不要な依存(`selenium-webdriver`)を持ち込まずに済みます。
+依存関係の異なる機能はサブパスで分離しています。「E2Eは要らないが起動引数パーサーだけ使いたい」ような場合に、`rmmz-test-kit/launch-args` は実行時に `selenium-webdriver` を読み込みません。
 
 | サブパス | 内容 | 依存 |
 |---|---|---|
@@ -35,7 +35,7 @@ RPG ツクール MZ(RMMZ)プロジェクト向けのテスト基盤です。ゲ�
 | `rmmz-test-kit/e2e` | NW.js版MZプロジェクトの黒箱E2E向けヘルパー(Selenium起動、キー入力、画面変化待ち) | `selenium-webdriver`(peer) |
 | `rmmz-test-kit/launch-args` | CLI起動引数(`test&scenario=...&seed=...&savedir=...`)の解析。純粋関数 | なし |
 
-`selenium-webdriver` は `peerDependencies` です。利用側プロジェクトが自分の `package.json` に持つバージョンを使います(`tyranoscript-test-kit` が `@playwright/test` を peerDependencies にしているのと同じ設計)。
+`selenium-webdriver` は `peerDependencies` です。利用側プロジェクトが自分の `package.json` に持つバージョンを使います(`tyranoscript-test-kit` が `@playwright/test` を peerDependencies にしているのと同じ設計)。ただし peer dependency の解決自体はサブパス単位ではなくパッケージ単位で行われるため、`package.json` では `peerDependenciesMeta` で `selenium-webdriver` を `optional: true` にしています。これにより `rmmz-test-kit/launch-args` だけを使う場合は `selenium-webdriver` のインストール自体も不要です。
 
 将来データ検証(validate)・意味差分(semantic-diff)等を追加する場合も、別リポジトリへ分割せず `rmmz-test-kit/validate` のようなサブパスとしてこのリポジトリへ追加する方針です(現時点では chiriyuku-monotachi の `tools/mz/validate`・`tools/mz/semantic-diff` にのみ存在し、negaboku側で重複が未発生のためスコープ外)。
 
@@ -61,7 +61,7 @@ MZ開発専用ブートストラッププラグイン本体は含みません。
 ローカルで並行開発する場合は相対パスの `file:` 依存も使える(`"rmmz-test-kit": "file:../rmmz-test-kit"`)。
 
 ```js
-const { parseLaunchArgs, createNwjsDriver, pressKey, pressUntilChanged, waitForFile } = require("rmmz-test-kit/e2e");
+const { resolveChromedriverPath, createNwjsDriver, pressKey, pressUntilChanged, waitForFile } = require("rmmz-test-kit/e2e");
 // 起動引数パーサーだけでよい場合は selenium-webdriver 不要:
 // const { parseLaunchArgs } = require("rmmz-test-kit/launch-args");
 

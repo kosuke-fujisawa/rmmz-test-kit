@@ -28,6 +28,11 @@
   "peerDependencies": {
     "selenium-webdriver": ">=4.0.0"
   },
+  "peerDependenciesMeta": {
+    "selenium-webdriver": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "selenium-webdriver": "^4.46.0"
   }

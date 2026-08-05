@@ -4,6 +4,16 @@
   "version": "0.1.0",
   "description": "RPGツクールMZプロジェクト向けNW.js黒箱E2Eキット(起動引数パーサー、Selenium操作ヘルパー)。ゲーム内容(シナリオ・戦闘仕様)には依存しない。negaboku・chiriyuku-monotachiで共有する。",
   "main": "src/index.js",
+  "license": "MIT",
+  "author": "mhlyc",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kosuke-fujisawa/rmmz-e2e-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kosuke-fujisawa/rmmz-e2e-kit/issues"
+  },
+  "homepage": "https://github.com/kosuke-fujisawa/rmmz-e2e-kit#readme",
   "engines": {
     "node": ">=20"
   },

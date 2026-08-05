@@ -2,7 +2,24 @@
 
 [![Test](https://github.com/kosuke-fujisawa/rmmz-test-kit/actions/workflows/test.yml/badge.svg)](https://github.com/kosuke-fujisawa/rmmz-test-kit/actions/workflows/test.yml)
 
-RPG ツクール MZ(RMMZ)プロジェクト向けのテスト基盤です。ゲーム内容(シナリオ・戦闘仕様)には依存しません。もともとは [negaboku](https://github.com/kosuke-fujisawa/negaboku)(`tools/mz-e2e/`)と [chiriyuku-monotachi](https://github.com/kosuke-fujisawa/chiriyuku-monotachi)(`tools/mz/e2e/`)の共通基盤として切り出したものですが、RPG ツクール MZ プロジェクト全般で利用できます。設計は姉妹リポジトリ [tyranoscript-test-kit](https://github.com/kosuke-fujisawa/tyranoscript-test-kit)(TyranoScript作品向け)に合わせています。
+RPG ツクール MZ(RMMZ)プロジェクト向けのテスト基盤です。ゲーム画面を実際に操作して起動・遷移を確認する「黒箱E2Eテスト」のためのヘルパー関数群を提供します。ゲーム内容(シナリオ・戦闘仕様)には依存しません。もともとは [negaboku](https://github.com/kosuke-fujisawa/negaboku)(`tools/mz-e2e/`)と [chiriyuku-monotachi](https://github.com/kosuke-fujisawa/chiriyuku-monotachi)(`tools/mz/e2e/`)の共通基盤として切り出したものですが、RPG ツクール MZ プロジェクト全般で利用できます。設計は姉妹リポジトリ [tyranoscript-test-kit](https://github.com/kosuke-fujisawa/tyranoscript-test-kit)(TyranoScript作品向け)に合わせています。
+
+## 目次
+
+- [前提条件](#前提条件)
+- [対応プラットフォーム](#対応プラットフォーム)
+- [含まれるもの・サブパス構成](#含まれるものサブパス構成)
+- [スコープ外(意図的に含めないもの)](#スコープ外意図的に含めないもの)
+- [使い方](#使い方)
+- [テスト](#テスト)
+- [ライセンス](#ライセンス)
+
+## 前提条件
+
+- Node.js 20 以上
+- RPG ツクール MZ の実行環境(黒箱E2E機能を使う場合。ライセンス済みのMZ本体が必要です)
+- macOS(黒箱E2E機能を使う場合。詳細は[対応プラットフォーム](#対応プラットフォーム)を参照)
+- 起動引数パーサー(`rmmz-test-kit/launch-args`)のみを使う場合、上記のうちNode.js以外は不要です。
 
 ## 対応プラットフォーム
 

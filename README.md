@@ -58,6 +58,8 @@ MZ開発専用ブートストラッププラグイン本体は含みません。
 }
 ```
 
+> **注意:** `#main` はブランチ名参照のため、`main` に新しいコミットが積まれると利用側の解決先も追従して変わります(内容が意図せず変わりうる)。再現性を重視する場合は、リリースタグ(例: `#v0.1.0`。ただし本リポジトリは現時点でリリースタグを発行していないため、これは形式の例示であり実在するタグではない)や、コミットハッシュを固定する `#<完全なコミットSHA>` 形式の参照を推奨する。
+
 ローカルで並行開発する場合は相対パスの `file:` 依存も使える(`"rmmz-test-kit": "file:../rmmz-test-kit"`)。
 
 ```js
@@ -78,10 +80,14 @@ const driver = await createNwjsDriver({
 
 ## テスト
 
+このリポジトリ自体の開発(clone してのテスト実行)には、`package-lock.json` を用いた再現可能なインストールとして `npm ci` を使用する。
+
 ```bash
-npm install
+npm ci
 npm test
 ```
+
+`.npmrc` により `ignore-scripts=true` を設定しているため、依存パッケージの `install`/`postinstall` 等のライフサイクルスクリプトは実行されない。
 
 純粋関数(`parseLaunchArgs`、`findLaunchArgToken`)のみ自動テスト対象で、GitHub Actions(`.github/workflows/test.yml`)でも実行しています。`e2e/nwjs-driver.js`側はライセンス済みのRPGツクールMZインストールが必要なため、実際のMZプロジェクトに対する黒箱E2Eの中で検証してください(各利用プロジェクトの`tools/mz*/e2e/`を参照)。
 

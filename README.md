@@ -76,6 +76,11 @@ const driver = await createNwjsDriver({
 });
 ```
 
+`createNwjsDriver` は、E2E実行中に作業中の画面フォーカスを奪わないよう、NW.jsを
+既定で最小化して起動します。画面を見ながらデバッグしたい場合だけ
+`startMinimized: false` を指定してください。最小化中もゲームループが止まらないよう、
+既定の最小化起動ではNW.jsの `--disable-raf-throttling` も自動指定します。
+
 起動引数(`test&scenario=...`)を実際にゲーム側で読み取るには、プロジェクト側に薄い開発専用プラグインが必要です。実装例は [negaboku/game/js/plugins/NegabokuDevBootstrap.js](https://github.com/kosuke-fujisawa/negaboku/blob/main/game/js/plugins/NegabokuDevBootstrap.js)(private repo)を参照してください。
 
 ## テスト

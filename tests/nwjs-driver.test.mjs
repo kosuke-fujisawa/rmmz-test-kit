@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { pressUntilChanged } from "../src/e2e/nwjs-driver.js";
+import {
+  createNwjsChromeOptions,
+  pressUntilChanged,
+} from "../src/e2e/nwjs-driver.js";
 
 function createFakeActionsChain() {
   const chain = {
@@ -30,6 +33,37 @@ function createFakeDriver(screenshotSequence) {
     },
   };
 }
+
+test("NW.jsは作業中の画面フォーカスを奪わないよう既定で最小化起動する", () => {
+  const options = createNwjsChromeOptions({
+    projectDir: "/path/to/game",
+    userDataDir: "/tmp/e2e-profile",
+    launchArgs: "test&scenario=basic_path",
+  });
+
+  assert.deepEqual(options.args, [
+    "nwapp=/path/to/game",
+    "--user-data-dir=/tmp/e2e-profile",
+    "--start-minimized",
+    "--disable-raf-throttling",
+    "test&scenario=basic_path",
+  ]);
+});
+
+test("画面を見ながらデバッグするときは最小化起動を無効化できる", () => {
+  const options = createNwjsChromeOptions({
+    projectDir: "/path/to/game",
+    userDataDir: "/tmp/e2e-profile",
+    launchArgs: "test&scenario=basic_path",
+    startMinimized: false,
+  });
+
+  assert.deepEqual(options.args, [
+    "nwapp=/path/to/game",
+    "--user-data-dir=/tmp/e2e-profile",
+    "test&scenario=basic_path",
+  ]);
+});
 
 test("pressUntilChangedは画面が変化したらtrueを返す", async () => {
   const driver = createFakeDriver(["a", "b"]);

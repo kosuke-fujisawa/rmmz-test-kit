@@ -26,6 +26,32 @@ function resolveChromedriverPath(mzAppPath) {
 }
 
 /**
+ * NW.js起動用のChromeオプションを組み立てる。
+ * E2E中に作業中の画面フォーカスを奪わないよう、既定では最小化起動する。
+ * 最小化時もRMMZのゲームループを動かし続けるため、NW.jsが提供する
+ * disable-raf-throttlingも併用する。
+ *
+ * @param {object} options
+ * @param {string} options.projectDir
+ * @param {string} options.userDataDir
+ * @param {string} options.launchArgs
+ * @param {boolean} [options.startMinimized=true]
+ */
+function createNwjsChromeOptions({
+  projectDir,
+  userDataDir,
+  launchArgs,
+  startMinimized = true,
+}) {
+  const args = [`nwapp=${projectDir}`, `--user-data-dir=${userDataDir}`];
+  if (startMinimized) {
+    args.push("--start-minimized", "--disable-raf-throttling");
+  }
+  args.push(launchArgs);
+  return { args };
+}
+
+/**
  * NW.js版MZプロジェクトをSelenium(MZ同梱ChromeDriver)経由で起動する。
  * `nwargs` experimental optionはこのMZ同梱ChromeDriverでは反映されないため、
  * 起動引数文字列を `args` 配列へ直接渡す形式(先頭に "--" が前置される)を使う。
@@ -36,13 +62,21 @@ function resolveChromedriverPath(mzAppPath) {
  * @param {string} options.projectDir MZプロジェクトのディレクトリ(nwapp)
  * @param {string} options.userDataDir 実行ごとに分離した一時プロファイルディレクトリ
  * @param {string} options.launchArgs "test&scenario=...&seed=...&savedir=..." 形式の文字列
+ * @param {boolean} [options.startMinimized=true] falseならデバッグ用に画面を表示する
  */
-async function createNwjsDriver({ chromedriverPath, projectDir, userDataDir, launchArgs }) {
+async function createNwjsDriver({
+  chromedriverPath,
+  projectDir,
+  userDataDir,
+  launchArgs,
+  startMinimized = true,
+}) {
   const service = new chrome.ServiceBuilder(chromedriverPath);
   const caps = Capabilities.chrome();
-  caps.set("goog:chromeOptions", {
-    args: [`nwapp=${projectDir}`, `--user-data-dir=${userDataDir}`, launchArgs],
-  });
+  caps.set(
+    "goog:chromeOptions",
+    createNwjsChromeOptions({ projectDir, userDataDir, launchArgs, startMinimized })
+  );
   return new Builder().forBrowser("chrome").setChromeService(service).withCapabilities(caps).build();
 }
 
@@ -138,6 +172,7 @@ async function pressUntilChanged(driver, key, { wait = 800, retries = 4 } = {}) 
 module.exports = {
   sleep,
   resolveChromedriverPath,
+  createNwjsChromeOptions,
   createNwjsDriver,
   pressKey,
   pressKeyN,
